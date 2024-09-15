@@ -11,9 +11,17 @@
     --accent-color-dark: #1d69a3;
 }
 
+.back{
+    background-image: radial-gradient(farthest-corner at 80% 45%, #db1943 0%, #181627 50%);
+}
+
 body {
+    margin: 0;
+    padding: 0;
+    background-image: radial-gradient(farthest-corner at 80% 45%, #db1943 0%, #181627 50%);
+    background-size: cover; /* Asegura que la imagen de fondo cubra todo el fondo */
+    background-position: center; /* Centra la imagen de fondo */
     font-family: "Poppins", sans-serif;
-    color: var(--primary-text-color);
 }
 
 p {
