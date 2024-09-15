@@ -1,23 +1,64 @@
-apikey = '30c6eae61c6e061cb76853d722bb66c4';
-url = 'https://gnews.io/api/v4/search?q=example&lang=en&country=us&max=10&apikey=' + apikey;
+const API_KEY = '30c6eae61c6e061cb76853d722bb66c4_KEY';
+const url = `https://gnews.io/api/v4/search?q=tecnologia&token=${API_KEY}&lang=es`;
 
-fetch(url)
-  .then(function (response) {
-    return response.json();
-  })
-  .then(function (data) {
-    articles = data.articles;
+window.addEventListener("load", () => fetchNews("Technology"));
 
-    for (i = 0; i < articles.length; i++) {
-      // articles[i].title
-      console.log("Title: " + articles[i]['title']);
-      // articles[i].description
-      console.log("Description: " + articles[i]['description']);
-      // You can replace {property} below with any of the article properties returned by the API.
-      // articles[i].{property}
-      // console.log(articles[i]['{property}']);
+async function fetchNews(query) {
+    const res = await fetch(`${url}${query}&apiKey=${API_KEY}`);
+    const data = await res.json();
+    bindData(data.articles);
+}
 
-      // Delete this line to display all the articles returned by the request. Currently only the first article is displayed.
-      break;
-    }
-  });
+function bindData(articles) {
+    const cardsContainer = document.getElementById("cardscontainer");
+    const newsCardTemplate = document.getElementById("template-news-card");
+
+    cardsContainer.innerHTML = "";
+
+    articles.forEach((article) => {
+        if (!article.urlToImage) return;
+
+        const cardClone = newsCardTemplate.content.cloneNode(true);
+        fillDataInCard(cardClone, article);
+        cardsContainer.appendChild(cardClone);
+    })
+}
+
+function fillDataInCard(cardClone, article) {
+    const newsImg = cardClone.querySelector("#news-img");
+    const newsTitle = cardClone.querySelector("#news-title");
+    const newsSource = cardClone.querySelector("#news-source");
+    const newsDesc = cardClone.querySelector("#news-desc");
+
+    newsImg.src = article.urlToImage;
+    newsTitle.innerHTML = `${article.title.slice(0, 60)}...`;
+    newsDesc.innerHTML = `${article.description.slice(0, 150)}...`;
+
+    const date = new Date(article.publishedAt).toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
+
+    newsSource.innerHTML = `${article.source.name} · ${date}`;
+
+    cardClone.firstElementChild.addEventListener("click", () => {
+        window.open(article.url, "_blank");
+    })
+}
+
+let curSelectedNav = null;
+function onNavItemClick(id) {
+    fetchNews(id);
+    const navItem = document.getElementById(id);
+    curSelectedNav?.classList.remove("active");
+    curSelectedNav = navItem;
+    curSelectedNav.classList.add("active");
+}
+
+const searchButton = document.getElementById("search-button");
+const searchText = document.getElementById("search-text");
+
+searchButton.addEventListener("click", () => {
+    const query = searchText.value;
+    if (!query) return;
+    fetchNews(query);
+    curSelectedNav?.classList.remove("active");
+    curSelectedNav = null;
+})
