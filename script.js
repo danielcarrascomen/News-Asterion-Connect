@@ -1,12 +1,22 @@
-const API_KEY = '30c6eae61c6e061cb76853d722bb66c4_KEY';
-const url = `https://gnews.io/api/v4/search?q=tecnologia&token=${API_KEY}&lang=es`;
+const API_KEY = '30c6eae61c6e061cb76853d722bb66c4';
+const url = `https://gnews.io/api/v4/search?q=`;
 
-window.addEventListener("load", () => fetchNews("Technology"));
+window.addEventListener("load", () => fetchNews("example"));
 
 async function fetchNews(query) {
-    const res = await fetch(`${url}${query}&apiKey=${API_KEY}`);
-    const data = await res.json();
-    bindData(data.articles);
+    try {
+        const res = await fetch(`${url}${query}&apikey=${API_KEY}`);
+        const data = await res.json();
+        console.log(data);
+        
+        if (data.articles) {
+            bindData(data.articles);
+        } else {
+            console.error("No articles found");
+        }
+    } catch (error) {
+        console.error("Error fetching data", error);
+    }
 }
 
 function bindData(articles) {
@@ -16,12 +26,12 @@ function bindData(articles) {
     cardsContainer.innerHTML = "";
 
     articles.forEach((article) => {
-        if (!article.urlToImage) return;
+        if (!article.image) return;  // Cambio de urlToImage a image según la estructura de la API
 
         const cardClone = newsCardTemplate.content.cloneNode(true);
         fillDataInCard(cardClone, article);
         cardsContainer.appendChild(cardClone);
-    })
+    });
 }
 
 function fillDataInCard(cardClone, article) {
@@ -30,17 +40,17 @@ function fillDataInCard(cardClone, article) {
     const newsSource = cardClone.querySelector("#news-source");
     const newsDesc = cardClone.querySelector("#news-desc");
 
-    newsImg.src = article.urlToImage;
+    newsImg.src = article.image;  // Cambio a image
     newsTitle.innerHTML = `${article.title.slice(0, 60)}...`;
     newsDesc.innerHTML = `${article.description.slice(0, 150)}...`;
 
-    const date = new Date(article.publishedAt).toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
+    const date = new Date(article.publishedAt).toLocaleString("en-US", { timeZone: "Asia/Jakarta" });
 
     newsSource.innerHTML = `${article.source.name} · ${date}`;
 
     cardClone.firstElementChild.addEventListener("click", () => {
         window.open(article.url, "_blank");
-    })
+    });
 }
 
 let curSelectedNav = null;
@@ -61,4 +71,4 @@ searchButton.addEventListener("click", () => {
     fetchNews(query);
     curSelectedNav?.classList.remove("active");
     curSelectedNav = null;
-})
+});
